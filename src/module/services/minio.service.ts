@@ -1,3 +1,5 @@
+import { ReadStream } from 'fs';
+import { EventEmitter } from 'events';
 import { Injectable, Inject } from '@hapiness/core';
 
 import { Observable } from 'rxjs';
@@ -5,7 +7,7 @@ import { Observable } from 'rxjs';
 import { MinioExt } from '../minio.extension';
 import {
     MinioConnect,
-    MinioBucketRegion,
+    MinioBucketRegion, stringToMinioBucketRegion,
     MinioBucket,
     MinioBucketObject,
     MinioBucketIncompleteUpload,
@@ -38,8 +40,8 @@ export class MinioService {
      * @return Return the default bucket region
      *
      */
-    private _defaultRegion(): MinioBucketRegion {
-        return this._manager.config.default_region || MinioBucketRegion.US_EAST_1;
+    protected _defaultRegion(): MinioBucketRegion {
+        return stringToMinioBucketRegion(this._manager.config.default_region);
     }
 
     /**
@@ -66,15 +68,16 @@ export class MinioService {
      * @param bucketName Name of the bucket
      * @param region Region where the bucket is created. Default value is us-east-1
      *
-     * @return Observable of null if the bucket is successfully created
+     * @return Observable of true if all went well
      *
      */
-    public makeBucket(bucketName: string, region?: MinioBucketRegion): Observable<void> {
+    public makeBucket(bucketName: string, region?: MinioBucketRegion): Observable<boolean> {
         return Observable
             .of(region)
             .filter(_ => !!_)
             .defaultIfEmpty(this._defaultRegion())
-            .switchMap(_ => this._minioClient.makeBucket(bucketName, _));
+            .switchMap(_ => this._minioClient.makeBucket(bucketName, _))
+            .map(_ => true);
     }
 
     /**
@@ -167,7 +170,8 @@ export class MinioService {
      * @return Observable emitting the incomplete upload objects in the bucket
      *
      */
-    public listIncompleteUploads(bucketName: string, prefix: string = '', recursive: boolean = false): Observable<MinioBucketIncompleteUpload> {
+    public listIncompleteUploads(bucketName: string, prefix: string = '', recursive: boolean = false):
+        Observable<MinioBucketIncompleteUpload> {
         return Observable
             .create(
                 observer => {
@@ -202,12 +206,14 @@ export class MinioService {
      * @param bucketName Name of the bucket
      * @param objectName Name of the object
      * @param offset Offset of the object from where the stream will start
-     * @param length Length of the object that will be read in the stream (optional, if not specified we read the rest of the file from the offset)
+     * @param length Length of the object that will be read in the stream
+     * (optional, if not specified we read the rest of the file from the offset)
      *
      * @return Observable of stream representing the partial object content stream
      *
      */
-    public getPartialObject(bucketName: string, objectName: string, offset: number, length: number = 0): Observable<ReadableStream> {
+    public getPartialObject(bucketName: string, objectName: string, offset: number, length: number = 0):
+        Observable<ReadableStream> {
         return Observable
             .fromPromise(this._minioClient.getPartialObject(bucketName, objectName, offset, length));
     }
@@ -223,7 +229,7 @@ export class MinioService {
      * @return true if all went well
      *
      */
-    public fGetObject(bucketName: string, objectName: string, filePath: number): Observable<boolean> {
+    public fGetObject(bucketName: string, objectName: string, filePath: string): Observable<boolean> {
         return Observable
             .fromPromise(this._minioClient.fGetObject(bucketName, objectName, filePath))
             .map(_ => true);
@@ -251,18 +257,17 @@ export class MinioService {
     public putObject(
         bucketName: string,
         objectName: string,
-        stream: ReadableStream | string | Buffer,
+        stream: ReadStream | string | Buffer,
         size?: number,
-        contentType?: string
+        contentType: string = 'application/octet-stream'
     ): Observable<string> {
-        if (typeof stream === 'string' || stream instanceof(Buffer)) {
+        if (typeof stream === 'string' || stream instanceof Buffer) {
             return Observable
                 .fromPromise(this._minioClient.putObject(bucketName, objectName, stream));
         }
 
-        const _contentType = contentType || 'application/octet-stream';
         return Observable
-            .fromPromise(this._minioClient.putObject(bucketName, objectName, stream, size, _contentType));
+            .fromPromise(this._minioClient.putObject(bucketName, objectName, stream, size, contentType));
     }
 
     /**
@@ -282,7 +287,12 @@ export class MinioService {
      * @return Observable of string representing the etag of the object uploaded
      *
      */
-    public fPutObject(bucketName: string, objectName: string, filePath: string, contentType: string = 'application/octet-stream'): Observable<string> {
+    public fPutObject(
+        bucketName: string,
+        objectName: string,
+        filePath: string,
+        contentType: string = 'application/octet-stream'
+    ): Observable<string> {
         return Observable
             .fromPromise(this._minioClient.fPutObject(bucketName, objectName, filePath, contentType));
     }
@@ -304,7 +314,8 @@ export class MinioService {
      * @return Observable of etag string and lastModified Date of the object newly copied object
      *
      */
-    public copyObject(bucketName: string, objectName: string, sourceObject: string, conditions: MinioCopyCondition): Observable<MinioCopyResult> {
+    public copyObject(bucketName: string, objectName: string, sourceObject: string, conditions: MinioCopyCondition):
+        Observable<MinioCopyResult> {
         return Observable
             .fromPromise(this._minioClient.copyObject(bucketName, objectName, sourceObject, conditions));
     }
@@ -455,7 +466,7 @@ export class MinioService {
             .fromPromise(this._minioClient.removeAllBucketNotification(bucketName))
             .map(_ => true);
     }
-    
+
     /**
      *
      * @description Listen for notifications on a bucket.
@@ -473,10 +484,10 @@ export class MinioService {
      * (NOTE: To stop listening, call .stop() on the returned EventEmitter)
      *
      */
-    public listenBucketNotification(bucketName: string, prefix: string, suffix: string, events: string[]): Observable<boolean> {
+    public listenBucketNotification(bucketName: string, prefix: string, suffix: string, events: string[]): EventEmitter {
         return this
             ._minioClient
-            .listenBucketNotification(bucketName, prefix, suffix, events)
+            .listenBucketNotification(bucketName, prefix, suffix, events);
     }
 
     /**
@@ -485,7 +496,8 @@ export class MinioService {
      * If objectPrefix is not empty, the bucket policy will be filtered based on object permissions as well.
      *
      * @param bucketName Name of the bucket
-     * @param objectPrefix Prefix of objects in the bucket with which to filter permissions off of (use '' for entire bucket)
+     * @param objectPrefix Prefix of objects in the bucket with which to filter permissions off of
+     * (use '' for entire bucket)
      *
      * @return an Observable of the policy. The policy will be the string representation of the bucket policy
      * ( MinioPolicy.NONE, MinioPolicy.READONLY, MinioPolicy.WRITEONLY, or MinioPolicy.READWRITE )
@@ -502,14 +514,14 @@ export class MinioService {
      * If objectPrefix is not empty, the bucket policy will only be assigned to objects that fit the given prefix
      *
      * @param bucketName Name of the bucket
-     * @param objectPrefix Prefix of objects in the bucket with which to filter permissions off of (use '' for entire bucket)
      * @param bucketPolicy The bucket policy
      * (This can be: MinioPolicy.NONE, MinioPolicy.READONLY, MinioPolicy.WRITEONLY, MinioPolicy.READWRITE)
+     * @param objectPrefix Prefix of objects in the bucket with which to filter permissions off of (use '' for entire bucket)
      *
      * @return an Observable of true if all went well
      *
      */
-    public setBucketPolicy(bucketName: string, objectPrefix: string = '', bucketPolicy: MinioPolicy): Observable<boolean> {
+    public setBucketPolicy(bucketName: string, bucketPolicy: MinioPolicy, objectPrefix: string = ''): Observable<boolean> {
         return Observable
             .of(this._minioClient.setBucketPolicy(bucketName, objectPrefix, bucketPolicy))
             .map(_ => true);

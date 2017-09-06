@@ -3,9 +3,8 @@ export interface MinioPostPolicy {
         conditions: any[];
         expiration: string;
     };
-
     formData: any;
-    
+
     setExpires(date: Date): void;
     setKey(objectName: string): void;
     setKeyStartsWith(prefix: string): void;
