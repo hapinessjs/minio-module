@@ -82,7 +82,7 @@ export class MinioService {
 
     /**
      *
-     * @description Does bucket exists
+     * @description Check if a bucket already exists
      *
      * @param bucketName Name of the bucket
      *
@@ -299,7 +299,7 @@ export class MinioService {
 
     /**
      *
-     * @description Uploads contents from a file to objectName
+     * @description Copy a source object into a new object in the specied bucket
      *
      * @param bucketName Name of the bucket
      * @param objectName Name of the object
