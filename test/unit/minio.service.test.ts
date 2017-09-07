@@ -50,7 +50,6 @@ class MinioServiceTest {
     /**
      * Test `MinioService` function _defaultRegion
      */
-    @only
     @test('- Test `MinioService` function _defaultRegion')
     testMinioServiceDefaultRegion() {
         class MinioServiceExtanded extends MinioService {
@@ -83,7 +82,6 @@ class MinioServiceTest {
     /**
      * Test `MinioService` function newMinioCopyCondition
      */
-    @only
     @test('- Test `MinioService` function newMinioCopyCondition')
     testMinioServiceNewMinioCopyCondition() {
         const stub = unit.stub().returns({ etag: 'etag' });
@@ -99,7 +97,6 @@ class MinioServiceTest {
     /**
      * Test `MinioService` function newMinioPostPolicy
      */
-    @only
     @test('- Test `MinioService` function newMinioPostPolicy')
     testMinioServiceNewMinioPostPolicy() {
         const stub = unit.stub().returns({ policy: {} });
@@ -114,7 +111,6 @@ class MinioServiceTest {
     /**
      * Test `MinioService` function makeBucket without specifying a region
      */
-    @only
     @test('- Test `MinioService` function makeBucket without specifying a region')
     testMinioServiceMakeBucketWithoutRegion(done) {
         const stub = unit.stub().returns(Observable.of(true));
@@ -138,7 +134,6 @@ class MinioServiceTest {
     /**
      * Test `MinioService` function makeBucket inside a region
      */
-    @only
     @test('- Test `MinioService` function makeBucket inside a region')
     testMinioServiceMakeBucketWithRegion(done) {
         const stub = unit.stub().returns(Observable.of(true));
@@ -162,7 +157,6 @@ class MinioServiceTest {
     /**
      * Test `MinioService` function bucketExists
      */
-    @only
     @test('- Test `MinioService` function bucketExists')
     testMinioServiceBucketExists(done) {
         const stub = unit.stub().returns(Promise.resolve(true));
@@ -185,7 +179,6 @@ class MinioServiceTest {
     /**
      * Test `MinioService` function bucketExists error with NoSuchBucket code
      */
-    @only
     @test('- Test `MinioService` function bucketExists error with NoSuchBucket code')
     testMinioServiceBucketExistsErrorNoSuchBucketCode(done) {
         const err = new Error();
@@ -212,7 +205,6 @@ class MinioServiceTest {
     /**
      * Test `MinioService` function bucketExists error
      */
-    @only
     @test('- Test `MinioService` function bucketExists error')
     testMinioServiceBucketExistsError(done) {
         const err = new Error();
@@ -235,7 +227,6 @@ class MinioServiceTest {
     /**
      * Test `MinioService` function listBuckets
      */
-    @only
     @test('- Test `MinioService` function listBuckets')
     testMinioServiceListBuckets(done) {
         const stub = unit.stub().returns(Promise.resolve([]));
@@ -253,14 +244,159 @@ class MinioServiceTest {
             );
     }
 
-    // TODO: listObjects
-    // TODO: listObjectsV2
-    // TODO: listIncompleteUploads
+    /**
+     * Test `MinioService` function listObjects
+     */
+    @test('- Test `MinioService` function listObjects')
+    testMinioServiceListObjects(done) {
+        const stub = unit.stub().returns(fs.createReadStream(`${__dirname}/minio.manager.test.ts`, { encoding: 'utf8' }));
+
+        const service = new MinioService(<any>{ client: { listObjects: stub }, config: {} });
+
+        service
+            .listObjects('bucket_name')
+            .subscribe(
+                _ => {},
+                e => done(e),
+                () => {
+                    unit.number(stub.callCount).is(1);
+                    unit.string(stub.getCall(0).args[0]).is('bucket_name');
+                    unit.string(stub.getCall(0).args[1]).is('');
+                    unit.bool(stub.getCall(0).args[2]).isFalse();
+
+                    done();
+                }
+            );
+    }
+
+    /**
+     * Test `MinioService` function listObjects error in stream
+     */
+    @test('- Test `MinioService` function listObjects error in stream')
+    testMinioServiceListObjectsErrorInStream(done) {
+        const stub = unit.stub().returns(fs.createReadStream(`${__dirname}/unexisting_file.ts`, { encoding: 'utf8' }));
+
+        const service = new MinioService(<any>{ client: { listObjects: stub }, config: {} });
+
+        service
+            .listObjects('bucket_name', 'test', true)
+            .subscribe(
+                _ => {},
+                e => {
+                    unit.number(stub.callCount).is(1);
+                    unit.string(stub.getCall(0).args[0]).is('bucket_name');
+                    unit.string(stub.getCall(0).args[1]).is('test');
+                    unit.bool(stub.getCall(0).args[2]).isTrue();
+
+                    done();
+                },
+                () => done(new Error('Should not be there'))
+            );
+    }
+
+    /**
+     * Test `MinioService` function listObjectsV2
+     */
+    @test('- Test `MinioService` function listObjectsV2')
+    testMinioServiceListObjectsV2(done) {
+        const stub = unit.stub().returns(fs.createReadStream(`${__dirname}/minio.manager.test.ts`, { encoding: 'utf8' }));
+
+        const service = new MinioService(<any>{ client: { listObjectsV2: stub }, config: {} });
+
+        service
+            .listObjectsV2('bucket_name')
+            .subscribe(
+                _ => {},
+                e => done(e),
+                () => {
+                    unit.number(stub.callCount).is(1);
+                    unit.string(stub.getCall(0).args[0]).is('bucket_name');
+                    unit.string(stub.getCall(0).args[1]).is('');
+                    unit.bool(stub.getCall(0).args[2]).isFalse();
+
+                    done();
+                }
+            );
+    }
+
+    /**
+     * Test `MinioService` function listObjectsV2 error in stream
+     */
+    @test('- Test `MinioService` function listObjectsV2 error in stream')
+    testMinioServiceListObjectsV2ErrorInStream(done) {
+        const stub = unit.stub().returns(fs.createReadStream(`${__dirname}/unexisting_file.ts`, { encoding: 'utf8' }));
+
+        const service = new MinioService(<any>{ client: { listObjectsV2: stub }, config: {} });
+
+        service
+            .listObjectsV2('bucket_name', 'test', true)
+            .subscribe(
+                _ => {},
+                e => {
+                    unit.number(stub.callCount).is(1);
+                    unit.string(stub.getCall(0).args[0]).is('bucket_name');
+                    unit.string(stub.getCall(0).args[1]).is('test');
+                    unit.bool(stub.getCall(0).args[2]).isTrue();
+
+                    done();
+                },
+                () => done(new Error('Should not be there'))
+            );
+    }
+
+    /**
+     * Test `MinioService` function listIncompleteUploads
+     */
+    @test('- Test `MinioService` function listIncompleteUploads')
+    testMinioServiceListIncompleteUploads(done) {
+        const stub = unit.stub().returns(fs.createReadStream(`${__dirname}/minio.manager.test.ts`, { encoding: 'utf8' }));
+
+        const service = new MinioService(<any>{ client: { listIncompleteUploads: stub }, config: {} });
+
+        service
+            .listIncompleteUploads('bucket_name')
+            .subscribe(
+                _ => {},
+                e => done(e),
+                () => {
+                    unit.number(stub.callCount).is(1);
+                    unit.string(stub.getCall(0).args[0]).is('bucket_name');
+                    unit.string(stub.getCall(0).args[1]).is('');
+                    unit.bool(stub.getCall(0).args[2]).isFalse();
+
+                    done();
+                }
+            );
+    }
+
+    /**
+     * Test `MinioService` function listIncompleteUploads error in stream
+     */
+    @test('- Test `MinioService` function listIncompleteUploads error in stream')
+    testMinioServiceListIncompleteUploadsErrorInStream(done) {
+        const stub = unit.stub().returns(fs.createReadStream(`${__dirname}/unexisting_file.ts`, { encoding: 'utf8' }));
+
+        const service = new MinioService(<any>{ client: { listIncompleteUploads: stub }, config: {} });
+
+        service
+            .listIncompleteUploads('bucket_name', 'test', true)
+            .subscribe(
+                _ => {},
+                e => {
+                    unit.number(stub.callCount).is(1);
+                    unit.string(stub.getCall(0).args[0]).is('bucket_name');
+                    unit.string(stub.getCall(0).args[1]).is('test');
+                    unit.bool(stub.getCall(0).args[2]).isTrue();
+
+                    done();
+                },
+                () => done(new Error('Should not be there'))
+            );
+    }
 
     /**
      * Test `MinioService` function getObject
      */
-    @only
     @test('- Test `MinioService` function getObject')
     testMinioServiceGetObject(done) {
         const stub = unit.stub().returns(Promise.resolve());
@@ -283,7 +419,6 @@ class MinioServiceTest {
     /**
      * Test `MinioService` function getPartialObject without specifying a length
      */
-    @only
     @test('- Test `MinioService` function getPartialObject without specifying a length')
     testMinioServiceGetPartialObject(done) {
         const stub = unit.stub().returns(Promise.resolve());
@@ -308,7 +443,6 @@ class MinioServiceTest {
     /**
      * Test `MinioService` function getPartialObject specifying a length
      */
-    @only
     @test('- Test `MinioService` function getPartialObject specifying a length')
     testMinioServiceGetPartialObjectWithLength(done) {
         const stub = unit.stub().returns(Promise.resolve());
@@ -333,7 +467,6 @@ class MinioServiceTest {
     /**
      * Test `MinioService` function fGetObject
      */
-    @only
     @test('- Test `MinioService` function fGetObject')
     testMinioServiceFGetObject(done) {
         const stub = unit.stub().returns(Promise.resolve());
@@ -359,7 +492,6 @@ class MinioServiceTest {
     /**
      * Test `MinioService` function putObject with string
      */
-    @only
     @test('- Test `MinioService` function putObject with string')
     testMinioServicePutObjectWithString(done) {
         const stub = unit.stub().returns(Promise.resolve('OK'));
@@ -385,7 +517,6 @@ class MinioServiceTest {
     /**
      * Test `MinioService` function putObject with buffer
      */
-    @only
     @test('- Test `MinioService` function putObject with buffer')
     testMinioServicePutObjectWithBuffer(done) {
         const stub = unit.stub().returns(Promise.resolve('OK'));
@@ -411,7 +542,6 @@ class MinioServiceTest {
     /**
      * Test `MinioService` function putObject with ReadableStream
      */
-    @only
     @test('- Test `MinioService` function putObject with ReadableStream')
     testMinioServicePutObjectWithReadableStream(done) {
         const stub = unit.stub().returns(Promise.resolve('OK'));
@@ -438,7 +568,6 @@ class MinioServiceTest {
     /**
      * Test `MinioService` function fPutObject
      */
-    @only
     @test('- Test `MinioService` function fPutObject')
     testMinioServiceFPutObject(done) {
         const stub = unit.stub().returns(Promise.resolve('OK'));
@@ -465,7 +594,6 @@ class MinioServiceTest {
     /**
      * Test `MinioService` function copyObject
      */
-    @only
     @test('- Test `MinioService` function copyObject')
     testMinioServiceCopyObject(done) {
         const stub = unit.stub().returns(Promise.resolve());
@@ -490,7 +618,6 @@ class MinioServiceTest {
     /**
      * Test `MinioService` function statObject
      */
-    @only
     @test('- Test `MinioService` function statObject')
     testMinioServiceStatObject(done) {
         const stub = unit.stub().returns(Promise.resolve());
@@ -513,7 +640,6 @@ class MinioServiceTest {
     /**
      * Test `MinioService` function removeObject
      */
-    @only
     @test('- Test `MinioService` function removeObject')
     testMinioServiceRemoveObject(done) {
         const stub = unit.stub().returns(Promise.resolve());
@@ -538,7 +664,6 @@ class MinioServiceTest {
     /**
      * Test `MinioService` function removeIncompleteUpload
      */
-    @only
     @test('- Test `MinioService` function removeIncompleteUpload')
     testMinioServiceRemoveIncompleteUpload(done) {
         const stub = unit.stub().returns(Promise.resolve());
@@ -563,7 +688,6 @@ class MinioServiceTest {
     /**
      * Test `MinioService` function presignedGetObject
      */
-    @only
     @test('- Test `MinioService` function presignedGetObject')
     testMinioServicePresignedGetObject(done) {
         const stub = unit.stub().returns(Promise.resolve());
@@ -587,7 +711,6 @@ class MinioServiceTest {
     /**
      * Test `MinioService` function presignedPutObject
      */
-    @only
     @test('- Test `MinioService` function presignedPutObject')
     testMinioServicePresignedPutObject(done) {
         const stub = unit.stub().returns(Promise.resolve());
@@ -611,7 +734,6 @@ class MinioServiceTest {
     /**
      * Test `MinioService` function presignedPostPolicy
      */
-    @only
     @test('- Test `MinioService` function presignedPostPolicy')
     testMinioServicePresignedPostPolicy(done) {
         const stub = unit.stub().returns(Promise.resolve());
@@ -632,7 +754,6 @@ class MinioServiceTest {
     /**
      * Test `MinioService` function getBucketNotification
      */
-    @only
     @test('- Test `MinioService` function getBucketNotification')
     testMinioServiceGetBucketNotification(done) {
         const stub = unit.stub().returns(Promise.resolve());
@@ -653,7 +774,6 @@ class MinioServiceTest {
     /**
      * Test `MinioService` function setBucketNotification
      */
-    @only
     @test('- Test `MinioService` function setBucketNotification')
     testMinioServiceSetBucketNotification(done) {
         const stub = unit.stub().returns(Promise.resolve());
@@ -678,7 +798,6 @@ class MinioServiceTest {
     /**
      * Test `MinioService` function removeAllBucketNotification
      */
-    @only
     @test('- Test `MinioService` function removeAllBucketNotification')
     testMinioServiceRemoveAllBucketNotification(done) {
         const stub = unit.stub().returns(Promise.resolve());
@@ -702,7 +821,6 @@ class MinioServiceTest {
     /**
      * Test `MinioService` function listenBucketNotification
      */
-    @only
     @test('- Test `MinioService` function listenBucketNotification')
     testMinioServiceListenBucketNotification() {
         const stub = unit.stub().returns();
@@ -720,7 +838,6 @@ class MinioServiceTest {
     /**
      * Test `MinioService` function getBucketPolicy
      */
-    @only
     @test('- Test `MinioService` function getBucketPolicy')
     testMinioServiceGetBucketPolicy(done) {
         const stub = unit.stub().returns(Promise.resolve());
@@ -743,7 +860,6 @@ class MinioServiceTest {
     /**
      * Test `MinioService` function setBucketPolicy
      */
-    @only
     @test('- Test `MinioService` function setBucketPolicy')
     testMinioServiceSetBucketPolicy(done) {
         const stub = unit.stub().returns(Promise.resolve());
