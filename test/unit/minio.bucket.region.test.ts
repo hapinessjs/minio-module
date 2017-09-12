@@ -2,24 +2,17 @@
 /**
  * @see https://github.com/pana-cc/mocha-typescript
  */
-import { test, suite, only } from 'mocha-typescript';
+import { test, suite } from 'mocha-typescript';
 
 /**
  * @see http://unitjs.com/
  */
 import * as unit from 'unit.js';
-import * as minio from 'minio';
-
-import { extractMetadata } from '@hapiness/core/core';
-import { Hapiness, HapinessModule, OnStart, Inject } from '@hapiness/core';
-import { HttpServerExt, Server } from '@hapiness/core/extensions/http-server';
-
-import { Observable } from 'rxjs/Observable';
 
 import { MinioBucketRegion, stringToMinioBucketRegion } from '../../src';
 
 @suite('- Unit tests of MinioBucketRegion')
-class MinioManagerTest {
+export class MinioManagerTest {
 
     /**
      * Function executed before the suite

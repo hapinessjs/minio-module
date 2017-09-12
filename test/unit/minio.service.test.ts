@@ -2,7 +2,7 @@
 /**
  * @see https://github.com/pana-cc/mocha-typescript
  */
-import { test, suite, only } from 'mocha-typescript';
+import { test, suite } from 'mocha-typescript';
 
 /**
  * @see http://unitjs.com/
@@ -10,16 +10,12 @@ import { test, suite, only } from 'mocha-typescript';
 import * as unit from 'unit.js';
 import * as fs from 'fs';
 
-import { extractMetadata } from '@hapiness/core/core';
-import { Hapiness, HapinessModule, OnStart, Inject } from '@hapiness/core';
-import { HttpServerExt, Server } from '@hapiness/core/extensions/http-server';
-
 import { Observable } from 'rxjs/Observable';
 
-import { MinioService, MinioBucketRegion, MinioCopyCondition, MinioPolicy } from '../../src';
+import { MinioService, MinioBucketRegion, MinioPolicy } from '../../src';
 
 @suite('- Unit tests of MinioService')
-class MinioServiceTest {
+export class MinioServiceTest {
 
     /**
      * Function executed before the suite
@@ -827,7 +823,7 @@ class MinioServiceTest {
 
         const service = new MinioService(<any>{ client: { listenBucketNotification: stub }, config: {} });
 
-        const res = service.listenBucketNotification('bucket_name', 'prefix', 'suffix', ['event:one']);
+        service.listenBucketNotification('bucket_name', 'prefix', 'suffix', ['event:one']);
 
         unit.string(stub.getCall(0).args[0]).is('bucket_name');
         unit.string(stub.getCall(0).args[1]).is('prefix');

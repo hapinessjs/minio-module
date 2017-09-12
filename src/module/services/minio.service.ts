@@ -6,7 +6,6 @@ import { Observable } from 'rxjs';
 
 import { MinioExt } from '../minio.extension';
 import {
-    MinioConnect,
     MinioBucketRegion, stringToMinioBucketRegion,
     MinioBucket,
     MinioBucketObject,

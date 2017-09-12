@@ -2,23 +2,19 @@
 /**
  * @see https://github.com/pana-cc/mocha-typescript
  */
-import { test, suite, only } from 'mocha-typescript';
+import { test, suite } from 'mocha-typescript';
 
 /**
  * @see http://unitjs.com/
  */
 import * as unit from 'unit.js';
 
-import { extractMetadata } from '@hapiness/core/core';
-import { Hapiness, HapinessModule, OnStart, Inject } from '@hapiness/core';
-import { HttpServerExt, Server } from '@hapiness/core/extensions/http-server';
-
-import { Observable } from 'rxjs/Observable';
+import { Hapiness, HapinessModule, OnStart, HttpServerExt } from '@hapiness/core';
 
 import { MinioExt, MinioModule, MinioService } from '../../src';
 
 @suite('- Integration tests of MinioModule')
-class MinioModuleIntegrationTest {
+export class MinioModuleIntegrationTest {
 
     /**
      * Function executed before the suite
@@ -58,7 +54,6 @@ class MinioModuleIntegrationTest {
         })
         class MinioModuleTest implements OnStart {
             constructor(
-                @Inject(HttpServerExt) private _httpServer: Server,
                 private _minio: MinioService
             ) { }
 
