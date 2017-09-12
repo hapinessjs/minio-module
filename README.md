@@ -2,17 +2,17 @@
 
 <div style="margin-bottom:20px;">
 <div style="line-height:60px">
-    <a href="https://travis-ci.org/hapinessjs/empty-module.svg?branch=master">
-        <img src="https://travis-ci.org/hapinessjs/empty-module.svg?branch=master" alt="build" />
+    <a href="https://travis-ci.org/hapinessjs/minio-module.svg?branch=master">
+        <img src="https://travis-ci.org/hapinessjs/minio-module.svg?branch=master" alt="build" />
     </a>
-    <a href="https://coveralls.io/github/hapinessjs/empty-module?branch=master">
-        <img src="https://coveralls.io/repos/github/hapinessjs/empty-module/badge.svg?branch=master" alt="coveralls" />
+    <a href="https://coveralls.io/github/hapinessjs/minio-module?branch=master">
+        <img src="https://coveralls.io/repos/github/hapinessjs/minio-module/badge.svg?branch=master" alt="coveralls" />
     </a>
-    <a href="https://david-dm.org/hapinessjs/empty-module">
-        <img src="https://david-dm.org/hapinessjs/empty-module.svg" alt="dependencies" />
+    <a href="https://david-dm.org/hapinessjs/minio-module">
+        <img src="https://david-dm.org/hapinessjs/minio-module.svg" alt="dependencies" />
     </a>
-    <a href="https://david-dm.org/hapinessjs/empty-module?type=dev">
-        <img src="https://david-dm.org/hapinessjs/empty-module/dev-status.svg" alt="devDependencies" />
+    <a href="https://david-dm.org/hapinessjs/minio-module?type=dev">
+        <img src="https://david-dm.org/hapinessjs/minio-module/dev-status.svg" alt="devDependencies" />
     </a>
 </div>
 <div>
@@ -42,6 +42,10 @@
 	* [`yarn` or `npm` it in your `package.json`](#yarn-or-npm-it-in-your-package)
 	* [Importing `MinioModule` from the library](#importing-miniomodule-from-the-library)
 	* [Using `Minio` inside your application](#using-minio-inside-your-application)
+* [Contributing](#contributing)
+* [Change History](#change-history)
+* [Maintainers](#maintainers)
+* [License](#license)
 
 ## Using your module inside Hapiness application
 
@@ -53,12 +57,12 @@ $ npm install --save @hapiness/minio
 
 or
 
-$ yarn add @hapiness/redis
+$ yarn add @hapiness/minio
 ```
     
 ```javascript
 "dependencies": {
-    "@hapiness/core": "^1.0.0-rc.6",
+    "@hapiness/core": "^1.0.0-rc.7",
     "@hapiness/minio": "^1.0.0-rc.7",
     //...
 }
@@ -131,7 +135,7 @@ Allowed region values are:
 
 ### Using `Minio` inside your application
 
-To use minio, you need to inject inside your providers the ```MinioService```.
+To use `minio`, you need to inject inside your providers the ```MinioService```.
 
 **NOTE:** all functions in the api return ```rxjs``` Observable
 
@@ -164,7 +168,7 @@ class FooProvider {
 **NOTES:**
 
 - All functions in the api return ```rxjs``` Observable
-- We followed the minio nodejs lib, so for more information, please refer to [the official documentation](https://docs.minio.io/docs/javascript-client-api-reference)
+- We followed the `minio` `nodejs` lib, so for more information, please refer to [the official documentation](https://docs.minio.io/docs/javascript-client-api-reference)
 
 ```javascript
 /* Get a new Copy Condition instance */
@@ -281,12 +285,34 @@ public setBucketPolicy(bucketName: string, bucketPolicy: MinioPolicy, objectPref
 
 [Back to top](#table-of-contents)
 
+## Contributing
+
+To set up your development environment:
+
+1. clone the repo to your workspace,
+2. in the shell `cd` to the main folder,
+3. hit `npm or yarn install`,
+4. run `npm or yarn run test`.
+    * It will lint the code and execute all tests.
+    * The test coverage report can be viewed from `./coverage/lcov-report/index.html`.
+    
+[Back to top](#table-of-contents)
+
+## Change History
+
+* v1.0.0-rc.7 (2017-09-12)
+    * `MinIO` module implementation
+    * Related tests
+    * Documentation
+    * Version related to core version
+
+[Back to top](#table-of-contents)
 
 ## Maintainers
 
 <table>
     <tr>
-        <td colspan="4" align="center"><a href="https://www.tadaweb.com"><img src="https://tadaweb.com/images/tadaweb/logo.png" width="117" alt="tadaweb" /></a></td>
+        <td colspan="4" align="center"><a href="https://www.tadaweb.com"><img src="https://www.tadaweb.com/opengraph.jpg" width="117" alt="tadaweb" /></a></td>
     </tr>
     <tr>
         <td align="center"><a href="https://github.com/Juneil"><img src="https://avatars3.githubusercontent.com/u/6546204?v=3&s=117" width="117"/></a></td>
