@@ -9,7 +9,7 @@ import { test, suite } from 'mocha-typescript';
  */
 import * as unit from 'unit.js';
 
-import { Hapiness, HapinessModule, OnStart, HttpServerExt } from '@hapiness/core';
+import { Hapiness, HapinessModule, OnStart } from '@hapiness/core';
 
 import { MinioExt, MinioModule, MinioService } from '../../src';
 
@@ -90,7 +90,6 @@ export class MinioModuleIntegrationTest {
         }
 
         Hapiness.bootstrap(MinioModuleTest, [
-            HttpServerExt.setConfig({ host: '0.0.0.0', port: 1234 }),
             MinioExt.setConfig(
                 {
                     connection: {

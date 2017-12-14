@@ -53,17 +53,18 @@
 ### `yarn` or `npm` it in your `package.json`
 
 ```bash
-$ npm install --save @hapiness/minio
+$ npm install --save @hapiness/core @hapiness/minio rxjs
 
 or
 
-$ yarn add @hapiness/minio
+$ yarn add @hapiness/core @hapiness/minio rxjs
 ```
     
 ```javascript
 "dependencies": {
-    "@hapiness/core": "^1.0.0-rc.7",
-    "@hapiness/minio": "^1.0.0-rc.7",
+    "@hapiness/core": "^1.3.0",
+    "@hapiness/minio": "^1.0.0",
+    "rxjs": "^5.5.5"
     //...
 }
 //...
@@ -300,11 +301,10 @@ To set up your development environment:
 
 ## Change History
 
-* v1.0.0-rc.7 (2017-09-12)
+* v1.0.0 (2017-12-14)
     * `MinIO` module implementation
     * Related tests
     * Documentation
-    * Version related to core version
 
 [Back to top](#table-of-contents)
 
@@ -312,7 +312,7 @@ To set up your development environment:
 
 <table>
     <tr>
-        <td colspan="4" align="center"><a href="https://www.tadaweb.com"><img src="https://www.tadaweb.com/opengraph.jpg" width="117" alt="tadaweb" /></a></td>
+        <td colspan="4" align="center"><a href="https://www.tadaweb.com"><img src="http://bit.ly/2xHQkTi" width="117" alt="tadaweb" /></a></td>
     </tr>
     <tr>
         <td align="center"><a href="https://github.com/Juneil"><img src="https://avatars3.githubusercontent.com/u/6546204?v=3&s=117" width="117"/></a></td>
