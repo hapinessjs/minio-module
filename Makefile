@@ -1,7 +1,7 @@
 pretest:
-	@node ./node_modules/.bin/tslint -p ./tsconfig.json --type-check "./src/**/*.ts" "./test/**/*.ts" -e "./src/custom-typings/**/*.ts"
+	@node ./node_modules/.bin/tslint -p ./tsconfig.json "./src/**/*.ts" "./test/**/*.ts"
 test:
-	@node ./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha ./test
+	@node ./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha "./test/**/*.ts"
 coveralls:
 	cat ./coverage/lcov.info | node ./node_modules/.bin/coveralls
 tsc:
@@ -11,4 +11,4 @@ clean:
 packaging:
 	@node ./node_modules/.bin/ts-node ./tools/packaging.ts
 
-.PHONY: pretest test test-on-travis tsc clean packaging
+.PHONY: pretest test coveralls tsc clean packaging
