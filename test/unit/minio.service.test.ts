@@ -12,7 +12,7 @@ import * as fs from 'fs';
 
 import { Observable } from 'rxjs/Observable';
 
-import { MinioService, MinioBucketRegion, MinioPolicy } from '../../src';
+import { MinioService, MinioPolicy } from '../../src';
 
 @suite('- Unit tests of MinioService')
 export class MinioServiceTest {
@@ -58,21 +58,15 @@ export class MinioServiceTest {
             }
         }
 
-        const instance1 = new MinioServiceExtanded({ client: {}, config: {} });
-        const instance2 = new MinioServiceExtanded({ client: {}, config: { default_region: 'UNKNOWN' } });
-        const instance3 = new MinioServiceExtanded({ client: {}, config: { default_region: 'cn-north-1' } });
+        const instance1 = new MinioServiceExtanded({ client: {}, config: { connection: {} } });
+        const instance2 = new MinioServiceExtanded({ client: {}, config: { connection: { region: 'UNKNOWN' } } });
+        const instance3 = new MinioServiceExtanded({ client: {}, config: { connection: { region: 'cn-north-1' } } });
 
-        unit.value(instance1.defaultRegion()).is(MinioBucketRegion.US_EAST_1);
         unit.string(instance1.defaultRegion()).is('us-east-1');
-        unit.string(instance1.defaultRegion().toString()).is('us-east-1');
 
-        unit.value(instance2.defaultRegion()).is(MinioBucketRegion.US_EAST_1);
         unit.string(instance2.defaultRegion()).is('us-east-1');
-        unit.string(instance2.defaultRegion().toString()).is('us-east-1');
 
-        unit.value(instance3.defaultRegion()).is(MinioBucketRegion.CN_NORTH_1);
         unit.string(instance3.defaultRegion()).is('cn-north-1');
-        unit.string(instance3.defaultRegion().toString()).is('cn-north-1');
     }
 
     /**
@@ -96,9 +90,9 @@ export class MinioServiceTest {
     @test('- Test `MinioService` function newMinioPostPolicy')
     testMinioServiceNewMinioPostPolicy() {
         const stub = unit.stub().returns({ policy: {} });
-        const service = new MinioService(<any>{ minio: { newPostPolicy: stub }, config: {} });
+        const service = new MinioService(<any>{ client: { newPostPolicy: stub }, config: {} });
 
-        const postPolicy = service.newMinioPostPolicy();
+        const postPolicy = service.newPostPolicy();
 
         unit.object(postPolicy).is({ policy: {} });
         unit.number(stub.callCount).is(1);
@@ -110,7 +104,7 @@ export class MinioServiceTest {
     @test('- Test `MinioService` function makeBucket without specifying a region')
     testMinioServiceMakeBucketWithoutRegion(done) {
         const stub = unit.stub().returns(Observable.of(true));
-        const service = new MinioService(<any>{ client: { makeBucket: stub }, config: {} });
+        const service = new MinioService(<any>{ client: { makeBucket: stub }, config: { connection: {} } });
 
         service
             .makeBucket('bucket_name')
@@ -133,10 +127,10 @@ export class MinioServiceTest {
     @test('- Test `MinioService` function makeBucket inside a region')
     testMinioServiceMakeBucketWithRegion(done) {
         const stub = unit.stub().returns(Observable.of(true));
-        const service = new MinioService(<any>{ client: { makeBucket: stub }, config: {} });
+        const service = new MinioService(<any>{ client: { makeBucket: stub }, config: { connection: {} } });
 
         service
-            .makeBucket('bucket_name', MinioBucketRegion.CN_NORTH_1)
+            .makeBucket('bucket_name', 'cn-north-1')
             .subscribe(
                 _ => {
                     unit.bool(_).isTrue();
@@ -177,10 +171,7 @@ export class MinioServiceTest {
      */
     @test('- Test `MinioService` function bucketExists error with NoSuchBucket code')
     testMinioServiceBucketExistsErrorNoSuchBucketCode(done) {
-        const err = new Error();
-        err['code'] = 'NoSuchBucket';
-
-        const stub = unit.stub().returns(Promise.reject(err));
+        const stub = unit.stub().returns(Promise.reject(false));
 
         const service = new MinioService(<any>{ client: { bucketExists: stub }, config: {} });
 
@@ -203,20 +194,19 @@ export class MinioServiceTest {
      */
     @test('- Test `MinioService` function bucketExists error')
     testMinioServiceBucketExistsError(done) {
-        const err = new Error();
-
-        const stub = unit.stub().returns(Promise.reject(err));
+        const stub = unit.stub().returns(Promise.resolve(false));
 
         const service = new MinioService(<any>{ client: { bucketExists: stub }, config: {} });
 
         service
             .bucketExists('bucket_name')
             .subscribe(
-                _ => done(new Error('Should not be there')),
-                e => {
+                _ => {
                     unit.number(stub.callCount).is(1);
+                    unit.bool(_).isFalse();
                     done();
-                }
+                },
+                e => done(e)
             );
     }
 
@@ -234,6 +224,26 @@ export class MinioServiceTest {
             .subscribe(
                 _ => {
                     unit.array(_).is([]);
+                    done();
+                },
+                e => done(e)
+            );
+    }
+
+    /**
+     * Test `MinioService` function removeBucket
+     */
+    @test('- Test `MinioService` function removeBucket')
+    testMinioServiceRemoveBucket(done) {
+        const stub = unit.stub().returns(Promise.resolve([]));
+
+        const service = new MinioService(<any>{ client: { removeBucket: stub }, config: {} });
+
+        service
+            .removeBucket('bucket_name')
+            .subscribe(
+                _ => {
+                    unit.bool(_).isTrue();
                     done();
                 },
                 e => done(e)
@@ -553,7 +563,7 @@ export class MinioServiceTest {
                     unit.string(stub.getCall(0).args[0]).is('bucket_name');
                     unit.string(stub.getCall(0).args[1]).is('object_name');
                     unit.undefined(stub.getCall(0).args[3]);
-                    unit.string(stub.getCall(0).args[4]).is('application/octet-stream');
+                    unit.object(stub.getCall(0).args[4]).is({ contentType: 'application/octet-stream' });
 
                     done();
                 },
@@ -579,7 +589,7 @@ export class MinioServiceTest {
                     unit.string(stub.getCall(0).args[0]).is('bucket_name');
                     unit.string(stub.getCall(0).args[1]).is('object_name');
                     unit.string(stub.getCall(0).args[2]).is('file_path');
-                    unit.string(stub.getCall(0).args[3]).is('application/octet-stream');
+                    unit.object(stub.getCall(0).args[3]).is({ contentType: 'application/octet-stream' });
 
                     done();
                 },
@@ -658,6 +668,30 @@ export class MinioServiceTest {
     }
 
     /**
+     * Test `MinioService` function removeObjects
+     */
+    @test('- Test `MinioService` function removeObjects')
+    testMinioServiceRemoveObjects(done) {
+        const stub = unit.stub().returns(Promise.resolve());
+
+        const service = new MinioService(<any>{ client: { removeObjects: stub }, config: { connection: {} } });
+
+        service
+            .removeObjects('bucket_name', ['object_name1', 'object_name2', 'object_name3'])
+            .subscribe(
+                _ => {
+                    unit.bool(_).isTrue();
+
+                    unit.string(stub.getCall(0).args[0]).is('bucket_name');
+                    unit.array(stub.getCall(0).args[1]).is(['object_name1', 'object_name2', 'object_name3']);
+
+                    done();
+                },
+                e => done(e)
+            );
+    }
+
+    /**
      * Test `MinioService` function removeIncompleteUpload
      */
     @test('- Test `MinioService` function removeIncompleteUpload')
@@ -697,6 +731,30 @@ export class MinioServiceTest {
                     unit.string(stub.getCall(0).args[0]).is('bucket_name');
                     unit.string(stub.getCall(0).args[1]).is('object_name');
                     unit.number(stub.getCall(0).args[2]).is(604800);
+
+                    done();
+                },
+                e => done(e)
+            );
+    }
+
+    /**
+     * Test `MinioService` function presignedUrl
+     */
+    @test('- Test `MinioService` function presignedUrl')
+    testMinioServicePresignedUrl(done) {
+        const stub = unit.stub().returns(Promise.resolve());
+
+        const service = new MinioService(<any>{ client: { presignedUrl: stub }, config: {} });
+
+        service
+            .presignedUrl('GET', 'bucket_name', 'object_name')
+            .subscribe(
+                _ => {
+                    unit.string(stub.getCall(0).args[0]).is('GET')
+                    unit.string(stub.getCall(0).args[1]).is('bucket_name');
+                    unit.string(stub.getCall(0).args[2]).is('object_name');
+                    unit.number(stub.getCall(0).args[3]).is(604800);
 
                     done();
                 },
@@ -845,7 +903,6 @@ export class MinioServiceTest {
             .subscribe(
                 _ => {
                     unit.string(stub.getCall(0).args[0]).is('bucket_name');
-                    unit.string(stub.getCall(0).args[1]).is('');
 
                     done();
                 },
@@ -860,7 +917,7 @@ export class MinioServiceTest {
     testMinioServiceSetBucketPolicy(done) {
         const stub = unit.stub().returns(Promise.resolve());
 
-        const service = new MinioService(<any>{ client: { setBucketPolicy: stub }, config: {} });
+        const service = new MinioService(<any>{ client: { setBucketPolicy: stub }, config: { connection: {} } });
 
         service
             .setBucketPolicy('bucket_name', MinioPolicy.NONE)
@@ -869,8 +926,7 @@ export class MinioServiceTest {
                     unit.bool(_).isTrue();
 
                     unit.string(stub.getCall(0).args[0]).is('bucket_name');
-                    unit.string(stub.getCall(0).args[1]).is('');
-                    unit.string(stub.getCall(0).args[2]).is(MinioPolicy.NONE);
+                    unit.string(stub.getCall(0).args[1]).is(MinioPolicy.NONE);
 
                     done();
                 },
