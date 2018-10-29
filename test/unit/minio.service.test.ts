@@ -505,7 +505,7 @@ export class MinioServiceTest {
         const service = new MinioService(<any>{ client: { putObject: stub }, config: {} });
 
         service
-            .putObject('bucket_name', 'object_name', 'stream')
+            .putObject('bucket_name', 'object_name', 'stream', null, 'text/plain')
             .subscribe(
                 _ => {
                     unit.string(_).is('OK');
@@ -530,7 +530,7 @@ export class MinioServiceTest {
         const service = new MinioService(<any>{ client: { putObject: stub }, config: {} });
 
         service
-            .putObject('bucket_name', 'object_name', Buffer.from('stream'))
+            .putObject('bucket_name', 'object_name', Buffer.from('stream'), null, { contentType: 'application/octet-stream'})
             .subscribe(
                 _ => {
                     unit.string(_).is('OK');
@@ -581,7 +581,7 @@ export class MinioServiceTest {
         const service = new MinioService(<any>{ client: { fPutObject: stub }, config: {} });
 
         service
-            .fPutObject('bucket_name', 'object_name', 'file_path')
+            .fPutObject('bucket_name', 'object_name', 'file_path', 'application/octet-stream')
             .subscribe(
                 _ => {
                     unit.string(_).is('OK');
@@ -590,6 +590,32 @@ export class MinioServiceTest {
                     unit.string(stub.getCall(0).args[1]).is('object_name');
                     unit.string(stub.getCall(0).args[2]).is('file_path');
                     unit.object(stub.getCall(0).args[3]).is({ contentType: 'application/octet-stream' });
+
+                    done();
+                },
+                e => done(e)
+            );
+    }
+
+    /**
+     * Test `MinioService` function fPutObject
+     */
+    @test('- Test `MinioService` function fPutObject')
+    testMinioServiceFPutObjectWithMedata(done) {
+        const stub = unit.stub().returns(Promise.resolve('OK'));
+
+        const service = new MinioService(<any>{ client: { fPutObject: stub }, config: {} });
+
+        service
+            .fPutObject('bucket_name', 'object_name', 'file_path', { meta1: 'meta1' })
+            .subscribe(
+                _ => {
+                    unit.string(_).is('OK');
+
+                    unit.string(stub.getCall(0).args[0]).is('bucket_name');
+                    unit.string(stub.getCall(0).args[1]).is('object_name');
+                    unit.string(stub.getCall(0).args[2]).is('file_path');
+                    unit.object(stub.getCall(0).args[3]).is({ contentType: 'application/octet-stream', meta1: 'meta1' });
 
                     done();
                 },
