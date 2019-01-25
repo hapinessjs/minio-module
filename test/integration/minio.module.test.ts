@@ -59,7 +59,7 @@ export class MinioModuleIntegrationTest {
 
             onStart(): void {
                 unit.function(this._minio.newMinioCopyCondition);
-                unit.function(this._minio.newMinioPostPolicy);
+                unit.function(this._minio.newPostPolicy);
                 unit.function(this._minio.makeBucket);
                 unit.function(this._minio.bucketExists);
                 unit.function(this._minio.listBuckets);
@@ -94,8 +94,10 @@ export class MinioModuleIntegrationTest {
                 {
                     connection: {
                         endPoint: '127.0.0.1',
+                        accessKey: '',
+                        secretKey: '',
                         port: 9000,
-                        secure: false
+                        useSSL: false
                     }
                 }
             )

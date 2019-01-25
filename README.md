@@ -33,7 +33,7 @@
 
 # Minio Module
 
-```Minio``` module for the Hapiness framework.
+`Minio` module for the Hapiness framework.
 
 ## Table of contents
 
@@ -59,8 +59,8 @@ or
 
 $ yarn add @hapiness/core @hapiness/minio rxjs
 ```
-    
-```javascript
+
+```typescript
 "dependencies": {
     "@hapiness/core": "^1.3.0",
     "@hapiness/minio": "^1.0.0",
@@ -76,10 +76,9 @@ $ yarn add @hapiness/core @hapiness/minio rxjs
 ### Importing `MinioModule` from the library
 
 This module provide an Hapiness extension for Minio.
-To use it, simply register it during the ```bootstrap``` step of your project and provide the ```MinioExt``` with its config
+To use it, simply register it during the `bootstrap` step of your project and provide the `MinioExt` with its config
 
-```javascript
-
+```typescript
 @HapinessModule({
     version: '1.0.0',
     providers: [],
@@ -101,11 +100,11 @@ Hapiness
                     connection: {
                       endPoint: 'minio.mydomain.com',
                       port: 443,
-                      secure: true,
+                      useSSL: true,
                       accessKey: 'access_key',
-                      secretKey: 'secret_key'
+                      secretKey: 'secret_key',
+                      region: 'us-east-1'
                     },
-                    default_region: 'us-east-1'
                 }
             )
         ]
@@ -113,10 +112,9 @@ Hapiness
     .catch(err => {
         /* ... */
     });
-
 ```
 
-You need to provide the connection information under the ```connection``` key in the config object. You are also able to determine a default region for your buckets under the key ```default_region```. If you dont provide a ```default_region```, every functions using a region will use the value ```us-east-1``` if you dont give any to the function.
+You need to provide the connection information under the `connection` key in the config object. If you dont provide a `region` in the `connection` object, nor when calling functions that could use one, the value `us-east-1` will be used.
 
 Allowed region values are:
 
@@ -133,97 +131,110 @@ Allowed region values are:
 
 [Back to top](#table-of-contents)
 
-
 ### Using `Minio` inside your application
 
-To use `minio`, you need to inject inside your providers the ```MinioService```.
+To use `minio`, you need to inject inside your providers the `MinioService`.
 
-**NOTE:** all functions in the api return ```rxjs``` Observable
+**NOTE:** all functions in the api return `rxjs` Observable
 
-```javascript
-
+```typescript
 class FooProvider {
-
     constructor(private _minio: MinioService) {}
 
-    createBucketIfNotExists(bucket_name: string): Observable<boolean> {
+    createBucketIfNotExists(bucketName: string): Observable<boolean> {
     	return this
             ._minio
-            .bucketExists(bucket_name)
+            .bucketExists(bucketName)
             .switchMap(
                 _ => !!_ ?
                     Observable.of(false) :
-                    this._minio.makeBucket(bucket_name)
+                    this._minio.makeBucket(bucketName)
             );
     }
-   
 }
-
 ```
 
 [Back to top](#table-of-contents)
 
 
-## ```MinioService``` documentation
+## `MinioService` documentation
 
 **NOTES:**
 
-- All functions in the api return ```rxjs``` Observable
+- All functions in the api return `rxjs` Observable
 - We followed the `minio` `nodejs` lib, so for more information, please refer to [the official documentation](https://docs.minio.io/docs/javascript-client-api-reference)
 
-```javascript
+```typescript
 /* Get a new Copy Condition instance */
-public newMinioCopyCondition(): MinioCopyCondition;
+public newMinioCopyCondition(): minio.CopyConditions;
 
 /* Get a new Post Policy instance */
-public newMinioPostPolicy(): MinioPostPolicy;
+public newMinioPostPolicy(): minio.PostPolicy;
 
 /* Create a bucket */
-public makeBucket(bucketName: string, region?: MinioBucketRegion): Observable<boolean>;
+public makeBucket(bucketName: string, region?: minio.Region): Observable<boolean>;
 
 /* Check if a bucket already exists */
 public bucketExists(bucketName: string): Observable<boolean>;
 
 /* List all buckets */
-public listBuckets(): Observable<MinioBucket[]>;
+public listBuckets(): Observable<minio.BucketItemFromList[]>;
+
+/* Remove a bucket given a bucketName */
+public removeBucket(bucketName: string): Observable<boolean>;
 
 /* Lists all objects in a bucket */
-public listObjects(bucketName: string, prefix: string = '', recursive: boolean = false): Observable<MinioBucketObject>;
+public listObjects(bucketName: string, prefix: string = '', recursive: boolean = false): Observable<minio.BucketItem>;
 
 /* Lists all objects in a bucket using S3 listing objects V2 API */
-public listObjectsV2(bucketName: string, prefix: string = '', recursive: boolean = false): Observable<MinioBucketObject>;
+public listObjectsV2(bucketName: string, prefix: string = '', recursive: boolean = false): Observable<minio.BucketItem>;
 
 /* Lists partially uploaded objects in a bucket */
-public listIncompleteUploads(bucketName: string, prefix: string = '', recursive: boolean = false): Observable<MinioBucketIncompleteUpload>;
+public listIncompleteUploads(bucketName: string, prefix: string = '', recursive: boolean = false):
+        Observable<minio.IncompleteUploadedBucketItem>;
 
 /* Downloads an object as a stream */
-public getObject(bucketName: string, objectName: string): Observable<ReadableStream>;
+public getObject(bucketName: string, objectName: string): Observable<Stream>;
 
 /* Downloads the specified range bytes of an object as a stream */
-public getPartialObject(bucketName: string, objectName: string, offset: number, length: number = 0): Observable<ReadableStream>;
+public getPartialObject(bucketName: string, objectName: string, offset: number, length: number = 0):
+        Observable<Stream>;
 
 /* Downloads and saves the object as a file in the local filesystem */
 public fGetObject(bucketName: string, objectName: string, filePath: string): Observable<boolean>;
 
 /* Uploads an object from a stream/Buffer */
-public putObject(bucketName: string, objectName: string, stream: ReadStream | string | Buffer, size?: number, contentType: string = 'application/octet-stream'): Observable<string>;
+public putObject(bucketName: string, objectName: string, stream: Readable | string | Buffer, size?: number, metadata?: minio.ItemBucketMetadata | string): Observable<string>;
 
 /* Uploads contents from a file to objectName */
-public fPutObject(bucketName: string, objectName: string, filePath: string, contentType: string = 'application/octet-stream'): Observable<string>;
+public fPutObject(bucketName: string, objectName: string, filePath: string, metadata?: minio.ItemBucketMetadata | string): Observable<string>;
 
 /* Copy a source object into a new object in the specied bucket */
-public copyObject(bucketName: string, objectName: string, sourceObject: string, conditions: MinioCopyCondition): Observable<MinioCopyResult>;
+public copyObject(bucketName: string, objectName: string, sourceObject: string, conditions: minio.CopyConditions):
+        Observable<minio.BucketItemCopy>;
 
-/*  Gets metadata of an object */
-public statObject(bucketName: string, objectName: string): Observable<MinioStatObject>;
+/* Gets metadata of an object */
+public statObject(bucketName: string, objectName: string): Observable<minio.BucketItemStat>;
 
-/*  Removes an object */
+/* Removes an object */
 public removeObject(bucketName: string, objectName: string): Observable<boolean>;
 
-/*  Removes a partially uploaded object */
+/* Remove multiple objects of a bucket */
+public removeObjects(bucketName: string, objectNames: string[]): Observable<boolean>;
+
+/* Removes a partially uploaded object */
 public removeIncompleteUpload(bucketName: string, objectName: string): Observable<boolean>;
 
-/* 
+/*
+ * Generate a presigned URLs for temporary download/upload access to private objects.
+ * Generates a presigned URL for the provided HTTP method, 'httpMethod'.
+ * Browsers/Mobile clients may point to this URL to directly download objects even if the bucket is private.
+ * This presigned URL can have an associated expiration time in seconds after which the URL is no longer valid.
+ * The default value is 7 days.
+ */
+public presignedUrl(httpMethod: string, bucketName: string, objectName: string, expiry: number = 604800, reqParams?: { [key: string]: any; }): Observable<string>;
+
+/*
  * Generates a presigned URL for HTTP GET operations.
  * Browsers/Mobile clients may point to this URL to directly download objects even if the bucket is private.
  * This presigned URL can have an associated expiration time in seconds after which the URL is no longer valid.
@@ -231,7 +242,7 @@ public removeIncompleteUpload(bucketName: string, objectName: string): Observabl
  */
 public presignedGetObject(bucketName: string, objectName: string, expiry: number = 604800): Observable<string>;
 
-/* 
+/*
  * Generates a presigned URL for HTTP PUT operations.
  * Browsers/Mobile clients may point to this URL to upload objects directly to a bucket even if it is private.
  * This presigned URL can have an associated expiration time in seconds after which the URL is no longer valid.
@@ -239,29 +250,29 @@ public presignedGetObject(bucketName: string, objectName: string, expiry: number
  */
 public presignedPutObject(bucketName: string, objectName: string, expiry: number = 604800): Observable<string>;
 
-/* 
+/*
  * Allows setting policy conditions to a presigned URL for POST operations.
  * Policies such as bucket name to receive object uploads, key name prefixes, expiry policy may be set
  */
-public presignedPostPolicy(policy: MinioPostPolicy): Observable<MinioPresignedPostPolicyResult>;
+public presignedPostPolicy(policy: minio.PostPolicy): Observable<minio.PostPolicyResult>;
 
-/* 
+/*
  * Fetch the notification configuration stored in the S3 provider and that belongs to
  * the specified bucket name
  */
-public getBucketNotification(bucketName: string): Observable<any>;
+public getBucketNotification(bucketName: string): Observable<minio.NotificationConfig>;
 
-/* 
+/*
  * Upload a user-created notification configuration and associate it to the specified bucket name
  */
 public setBucketNotification(bucketName: string, bucketNotificationConfig: any): Observable<boolean>;
 
-/* 
+/*
  * Remove the bucket notification configuration associated to the specified bucket
  */
 public removeAllBucketNotification(bucketName: string): Observable<boolean>;
 
-/* 
+/*
  * Listen for notifications on a bucket.
  * Additionally one can provider filters for prefix, suffix and events.
  * There is no prior set bucket notification needed to use this API.
@@ -270,18 +281,17 @@ public removeAllBucketNotification(bucketName: string): Observable<boolean>;
  */
 public listenBucketNotification(bucketName: string, prefix: string, suffix: string, events: string[]): EventEmitter;
 
-/* 
+/*
  * Get the bucket policy associated with the specified bucket.
  * If objectPrefix is not empty, the bucket policy will be filtered based on object permissions as well.
  */
-public getBucketPolicy(bucketName: string, objectPrefix: string = ''): Observable<MinioPolicy>;
+public getBucketPolicy(bucketName: string): Observable<string>;
 
-/* 
+/*
  * Set the bucket policy associated with the specified bucket.
  * If objectPrefix is not empty, the bucket policy will only be assigned to objects that fit the given prefix
  */
-public setBucketPolicy(bucketName: string, bucketPolicy: MinioPolicy, objectPrefix: string = ''): Observable<boolean>;
-
+public setBucketPolicy(bucketName: string, bucketPolicy: string): Observable<boolean>;
 ```
 
 [Back to top](#table-of-contents)
@@ -301,6 +311,16 @@ To set up your development environment:
 
 ## Change History
 
+* v2.0.0 (2018-10-16)
+    * Upgraded minio to 7.0.1
+    * Now use "useSSL" instead of "secure"
+    * Integrated minio's types
+    * Added Functions:
+        * removeBucket()
+        * removeObjects()
+        * PresignedUrl()
+    * Renamed newMinioPostPolicy() to newPostPolicy()
+    * Updated README
 * v1.0.0 (2017-12-14)
     * `MinIO` module implementation
     * Related tests
@@ -312,19 +332,21 @@ To set up your development environment:
 
 <table>
     <tr>
-        <td colspan="4" align="center"><a href="https://www.tadaweb.com"><img src="http://bit.ly/2xHQkTi" width="117" alt="tadaweb" /></a></td>
+        <td colspan="5" align="center"><a href="https://www.tadaweb.com"><img src="http://bit.ly/2xHQkTi" width="117" alt="tadaweb" /></a></td>
     </tr>
     <tr>
         <td align="center"><a href="https://github.com/Juneil"><img src="https://avatars3.githubusercontent.com/u/6546204?v=3&s=117" width="117"/></a></td>
         <td align="center"><a href="https://github.com/antoinegomez"><img src="https://avatars3.githubusercontent.com/u/997028?v=3&s=117" width="117"/></a></td>
         <td align="center"><a href="https://github.com/reptilbud"><img src="https://avatars3.githubusercontent.com/u/6841511?v=3&s=117" width="117"/></a></td>
         <td align="center"><a href="https://github.com/njl07"><img src="https://avatars3.githubusercontent.com/u/1673977?v=3&s=117" width="117"/></a></td>
+        <td align="center"><a href="https://github.com/xmaIIoc"><img src="https://avatars3.githubusercontent.com/u/1898461?v=4&s=117" width="117"/></a></td>
     </tr>
     <tr>
         <td align="center"><a href="https://github.com/Juneil">Julien Fauville</a></td>
         <td align="center"><a href="https://github.com/antoinegomez">Antoine Gomez</a></td>
         <td align="center"><a href="https://github.com/reptilbud">Sébastien Ritz</a></td>
         <td align="center"><a href="https://github.com/njl07">Nicolas Jessel</a></td>
+        <td align="center"><a href="https://github.com/xmaIIoc">Florent Bennani</a></td>
     </tr>
 </table>
 
