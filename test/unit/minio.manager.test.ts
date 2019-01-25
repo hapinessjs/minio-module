@@ -52,18 +52,18 @@ export class MinioManagerTest {
 
         mock
             .expects('Client')
-            .withArgs({ endPoint: 'my_endpoint' })
+            .withArgs({ endPoint: 'my_endpoint', accessKey: 'accessKey', secretKey: 'secretKey' })
             .returns(new Fake());
 
         mock
             .expects('CopyConditions')
             .returns(new Fake());
 
-        const instance = new MinioManager({ connection: { endPoint: 'my_endpoint' } });
+        const instance = new MinioManager({ connection: { endPoint: 'my_endpoint', accessKey: 'accessKey', secretKey: 'secretKey' } });
 
         unit.bool(instance.client instanceof Fake).isTrue();
         unit.bool(new (instance.minio).CopyConditions() instanceof Fake).isTrue();
-        unit.object(instance.config).is({ connection: { endPoint: 'my_endpoint' } });
+        unit.object(instance.config).is({ connection: { endPoint: 'my_endpoint', accessKey: 'accessKey', secretKey: 'secretKey' } });
 
         mock.verify();
         mock.restore();

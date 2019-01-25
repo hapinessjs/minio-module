@@ -12,11 +12,11 @@ export class MinioManager {
         this._config = config;
     }
 
-    get minio(): any {
+    get minio(): typeof minio {
         return minio;
     }
 
-    get client(): any {
+    get client(): minio.Client {
         return this._client;
     }
 

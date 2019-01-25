@@ -1,6 +1,5 @@
-import { MinioConnect } from './minio.connect';
+import { ClientOptions } from 'minio';
 
 export interface MinioConfig {
-    connection: MinioConnect;
-    default_region?: string;
+    connection: ClientOptions;
 }
