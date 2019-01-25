@@ -70,14 +70,14 @@
     },
     "homepage": "https://github.com/hapinessjs/minio-module#readme",
     "dependencies": {
-        "@types/node": "^8.5.1",
-        "debug": "^3.1.0",
-        "minio": "^7.0.1"
+        "debug": "~3.1.0",
+        "minio": "~7.0.4"
     },
     "devDependencies": {
         "@hapiness/core": "^1.5.5",
         "@types/fs-extra": "^5.0.0",
         "@types/minio": "^7.0.0",
+        "@types/node": "^8.5.1",
         "coveralls": "^3.0.0",
         "fs-extra": "^5.0.0",
         "istanbul": "^1.1.0-alpha.1",
