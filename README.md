@@ -311,6 +311,8 @@ To set up your development environment:
 
 ## Change History
 
+* v2.0.1 (2019-01-29)
+    * fixed 'content-type' key in metadata.
 * v2.0.0 (2018-10-16)
     * Upgraded minio to 7.0.1
     * Now use "useSSL" instead of "secure"
