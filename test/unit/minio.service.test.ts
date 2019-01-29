@@ -563,7 +563,7 @@ export class MinioServiceTest {
                     unit.string(stub.getCall(0).args[0]).is('bucket_name');
                     unit.string(stub.getCall(0).args[1]).is('object_name');
                     unit.undefined(stub.getCall(0).args[3]);
-                    unit.object(stub.getCall(0).args[4]).is({ contentType: 'application/octet-stream' });
+                    unit.object(stub.getCall(0).args[4]).is({ 'content-type': 'application/octet-stream' });
 
                     done();
                 },

@@ -74,9 +74,9 @@
         "minio": "~7.0.4"
     },
     "devDependencies": {
-        "@hapiness/core": "^1.5.5",
+        "@hapiness/core": "~1.6.0",
         "@types/fs-extra": "^5.0.0",
-        "@types/minio": "^7.0.0",
+        "@types/minio": "~7.0.1",
         "@types/node": "^8.5.1",
         "coveralls": "^3.0.0",
         "fs-extra": "^5.0.0",
@@ -91,7 +91,7 @@
         "unit.js": "~2.1.0"
     },
     "peerDependencies": {
-        "@hapiness/core": "^1.5.5",
+        "@hapiness/core": "~1.6.0",
         "rxjs": "^5.5.7"
     },
     "engines": {
