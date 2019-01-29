@@ -259,7 +259,7 @@ export class MinioService {
         size?: number,
         metadata?: minio.ItemBucketMetadata | string
     ): Observable<string> {
-        const contentType = typeof metadata === 'string' ? { contentType: metadata } : { contentType: 'application/octet-stream' };
+        const contentType = typeof metadata === 'string' ? { 'content-type': metadata } : { 'content-type': 'application/octet-stream' };
         const formattedMetadata = Object.assign({}, contentType, typeof metadata === 'object' ? metadata : {});
 
         if (typeof stream === 'string' || stream instanceof Buffer) {
