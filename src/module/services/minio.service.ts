@@ -1,6 +1,6 @@
 import * as minio from 'minio';
 import { EventEmitter } from 'events';
-import { Readable, Stream } from 'stream';
+import { Stream } from 'stream';
 import { Injectable, Inject } from '@hapiness/core';
 
 import { Observable } from 'rxjs';
@@ -239,7 +239,7 @@ export class MinioService {
      *
      * @param bucketName Name of the bucket
      * @param objectName Name of the object
-     * @param stream Readable stream (from require('stream').Readable)
+     * @param stream Stream | string | Buffer
      * @param size Size of the object (optional)
      * @param metadata Metadata of the object or Content-Type (optional, default { contentType: application/octet-stream })
      *
@@ -255,7 +255,7 @@ export class MinioService {
     public putObject(
         bucketName: string,
         objectName: string,
-        stream: Readable | string | Buffer,
+        stream: Stream | string | Buffer,
         size?: number,
         metadata?: minio.ItemBucketMetadata | string
     ): Observable<string> {
