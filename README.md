@@ -204,7 +204,7 @@ public getPartialObject(bucketName: string, objectName: string, offset: number, 
 public fGetObject(bucketName: string, objectName: string, filePath: string): Observable<boolean>;
 
 /* Uploads an object from a stream/Buffer */
-public putObject(bucketName: string, objectName: string, stream: Readable | string | Buffer, size?: number, metadata?: minio.ItemBucketMetadata | string): Observable<string>;
+public putObject(bucketName: string, objectName: string, stream: Stream | string | Buffer, size?: number, metadata?: minio.ItemBucketMetadata | string): Observable<string>;
 
 /* Uploads contents from a file to objectName */
 public fPutObject(bucketName: string, objectName: string, filePath: string, metadata?: minio.ItemBucketMetadata | string): Observable<string>;
@@ -311,6 +311,8 @@ To set up your development environment:
 
 ## Change History
 
+* v2.0.2 (2019-02-14 🌹)
+    * Update input types of putObject to Stream
 * v2.0.1 (2019-01-29)
     * fixed 'content-type' key in metadata.
 * v2.0.0 (2018-10-16)
