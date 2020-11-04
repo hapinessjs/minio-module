@@ -38,14 +38,17 @@
 ## Table of contents
 
 
-* [Using your module inside Hapiness application](#using-your-module-inside-hapiness-application)
-	* [`yarn` or `npm` it in your `package.json`](#yarn-or-npm-it-in-your-package)
-	* [Importing `MinioModule` from the library](#importing-miniomodule-from-the-library)
-	* [Using `Minio` inside your application](#using-minio-inside-your-application)
-* [Contributing](#contributing)
-* [Change History](#change-history)
-* [Maintainers](#maintainers)
-* [License](#license)
+- [Minio Module](#minio-module)
+  - [Table of contents](#table-of-contents)
+  - [Using your module inside Hapiness application](#using-your-module-inside-hapiness-application)
+    - [`yarn` or `npm` it in your `package.json`](#yarn-or-npm-it-in-your-packagejson)
+    - [Importing `MinioModule` from the library](#importing-miniomodule-from-the-library)
+    - [Using `Minio` inside your application](#using-minio-inside-your-application)
+  - [`MinioService` documentation](#minioservice-documentation)
+  - [Contributing](#contributing)
+  - [Change History](#change-history)
+  - [Maintainers](#maintainers)
+  - [License](#license)
 
 ## Using your module inside Hapiness application
 
@@ -311,6 +314,8 @@ To set up your development environment:
 
 ## Change History
 
+* v2.0.3 (2020-11-04)
+    * Update the supported region enums
 * v2.0.2 (2019-02-14 🌹)
     * Update input types of putObject to Stream
 * v2.0.1 (2019-01-29)
