@@ -71,7 +71,7 @@
     "homepage": "https://github.com/hapinessjs/minio-module#readme",
     "dependencies": {
         "debug": "~3.1.0",
-        "minio": "~7.0.4"
+        "minio": "~7.0.16"
     },
     "devDependencies": {
         "@hapiness/core": "~1.6.0",
