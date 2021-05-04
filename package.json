@@ -1,6 +1,6 @@
 {
     "name": "@hapiness/minio",
-    "version": "2.0.3",
+    "version": "2.1.0",
     "description": "Hapiness module for minio",
     "main": "commonjs/index.js",
     "types": "index.d.ts",
