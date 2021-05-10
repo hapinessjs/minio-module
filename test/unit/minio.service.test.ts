@@ -59,7 +59,7 @@ export class MinioServiceTest {
         }
 
         const instance1 = new MinioServiceExtanded({ client: {}, config: { connection: {} } });
-        const instance2 = new MinioServiceExtanded({ client: {}, config: { connection: { region: 'UNKNOWN' } } });
+        const instance2 = new MinioServiceExtanded({ client: {}, config: { connection: { region: '' } } });
         const instance3 = new MinioServiceExtanded({ client: {}, config: { connection: { region: 'cn-north-1' } } });
 
         unit.string(instance1.defaultRegion()).is('us-east-1');

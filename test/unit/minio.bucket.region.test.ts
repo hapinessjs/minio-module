@@ -56,6 +56,7 @@ export class MinioManagerTest {
         unit.string(stringToMinioBucketRegion('sa-east-1')).is('sa-east-1');
         unit.string(stringToMinioBucketRegion('cn-north-1')).is('cn-north-1');
 
-        unit.string(stringToMinioBucketRegion('unknown')).is('us-east-1');
+        unit.string(stringToMinioBucketRegion(undefined)).is('us-east-1');
+        unit.string(stringToMinioBucketRegion('')).is('us-east-1');
     }
 }

@@ -1,6 +1,7 @@
 import * as minio from 'minio';
+
 import { EventEmitter } from 'events';
-import { Stream } from 'stream';
+import { Readable as ReadableStream } from 'stream';
 import { Injectable, Inject } from '@hapiness/core';
 
 import { Observable } from 'rxjs';
@@ -192,7 +193,7 @@ export class MinioService {
      * @return Observable of stream representing the object content stream
      *
      */
-    public getObject(bucketName: string, objectName: string): Observable<Stream> {
+    public getObject(bucketName: string, objectName: string): Observable<ReadableStream> {
         return Observable
             .fromPromise(this._minioClient.getObject(bucketName, objectName));
     }
@@ -211,7 +212,7 @@ export class MinioService {
      *
      */
     public getPartialObject(bucketName: string, objectName: string, offset: number, length: number = 0):
-        Observable<Stream> {
+        Observable<ReadableStream> {
         return Observable
             .fromPromise(this._minioClient.getPartialObject(bucketName, objectName, offset, length));
     }
@@ -239,7 +240,7 @@ export class MinioService {
      *
      * @param bucketName Name of the bucket
      * @param objectName Name of the object
-     * @param stream Stream | string | Buffer
+     * @param stream ReadableStream | string | Buffer
      * @param size Size of the object (optional)
      * @param metadata Metadata of the object or Content-Type (optional, default { contentType: application/octet-stream })
      *
@@ -255,7 +256,7 @@ export class MinioService {
     public putObject(
         bucketName: string,
         objectName: string,
-        stream: Stream | string | Buffer,
+        stream: ReadableStream | string | Buffer,
         size?: number,
         metadata?: minio.ItemBucketMetadata | string
     ): Observable<string> {
